@@ -1,5 +1,5 @@
 {
-  "label" : "Acquisition Localizer (Multi"),
+  "label" : "Acquisition Localizer - Multi",
   "recommended-queues" : [ "grfn-job_worker-large" ],
   "allowed_accounts": [ "ops" ],
   "enable_dedup": false,
