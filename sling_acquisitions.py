@@ -320,7 +320,7 @@ def resolve_source(ctx_file):
     sleep_seconds = 30
     
     spyddder_extract_version = "develop"
-    acquisition_localizer_version = "develop"
+
 
     
     # build args
@@ -336,10 +336,11 @@ def resolve_source(ctx_file):
  
     if "spyddder_extract_version" in ctx:
         spyddder_extract_version = ctx["spyddder_extract_version"]
-    if "spyddder-man_version" in ctx:
-        acquisition_localizer_version = ctx["spyddder-man_version"]
+
+
     job_priority = ctx["job_priority"]
     job_type, job_version = ctx['job_specification']['id'].split(':') 
+    acquisition_localizer_version = job_version
 
     queues = []  # where should we get the queue value
     identifiers = []
@@ -475,7 +476,7 @@ def submit_sling_job(project, spyddder_extract_version, acquisition_localizer_ve
     job_submit_url = '%s/mozart/api/v0.1/job/submit' % MOZART_URL
 
     # set job type and disk space reqs
-    job_type = "job-acquisition_localizer:{}".format(acquisition_localizer_version)
+    job_type = "job-acquisition_localizer_single:{}".format(acquisition_localizer_version)
     logger.info("\nSubmitting job of type : %s" %job_type)
      # set job type and disk space reqs
     disk_usage = "300GB"
@@ -486,7 +487,7 @@ def submit_sling_job(project, spyddder_extract_version, acquisition_localizer_ve
     job_queue = "%s-job_worker-large" % project
     #job_queue = "factotum-job_worker-small" 
     rule = {
-        "rule_name": "acquisition_localizer_multi_source-sling",
+        "rule_name": "acquisition_localizer_multi-sling",
         "queue": job_queue,
         "priority": '5',
         "kwargs":'{}'
