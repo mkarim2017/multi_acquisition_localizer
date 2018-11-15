@@ -415,6 +415,41 @@ def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, pro
             if delta >= slc_check_max_sec:
                 raise RuntimeError("Error : SLC not available %.2f min after sling jobs completed!!" %(delta/60))
             time.sleep(60)
+    
+    #At this point we have all the slcs localized
+    localized_data = get_output_data(acq_info)
+
+    logger.info("\n\nLocalized Acquisitions")
+    for acq in localized_data.keys():
+        for acq_data in acq:
+            logger.info("%s : %s" %(acq_data, acq[acq_data]))
+        logger.info("\n")
+
+        
+
+
+def get_output_data(acq_info):
+    localized_data = {}
+    for acq_id in acq_info.keys():
+        if not acq_info[acq_id]['localized']:
+            return None
+        acq_data = acq_info[acq_id]['acq_data']
+        slc_data = util.get_partial_grq_data(acq_data['metadata']['identifier'])['fields']['partial'][0] 
+        localize_url = ""
+        urls = slc_data['urls']
+        for url in urls:
+            localize_url = url
+            if localize_url.startswith('s3://'):
+                break
+        
+        acq_localized_data = {}
+        acq_localized_data['acquisition'] = acq_id
+        acq_localized_data['identifier'] = acq_data['metadata']['identifier']
+        acq_localized_data['localized'] = acq_info[acq_id]['localized']
+        acq_localized_data['urls'] = urls
+        acq_localized_data['localize_url'] = localize_url
+        localized_data[acq_id] = acq_localized_data
+    return localized_data
 
 
         
