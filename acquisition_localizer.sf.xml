@@ -31,7 +31,7 @@
         <sf:operator>
           <sf:description></sf:description>
           <sf:op>
-            <sf:binding>python:?util.resolve_source_from_ctx_file</sf:binding>
+            <sf:binding>python:?acquisition_localizer_single.resolve_source_from_ctx_file</sf:binding>
           </sf:op>
         </sf:operator>
       </sf:process>
@@ -53,7 +53,7 @@
         <sf:operator>
           <sf:description></sf:description>
           <sf:op>
-            <sf:binding job_queue="jobs_processed" async="false">parallel:python:?util.extract_job</sf:binding>
+            <sf:binding job_queue="jobs_processed" async="false">parallel:python:?acquisition_localizer_single.extract_job</sf:binding>
           </sf:op>
         </sf:operator>
       </sf:process>
