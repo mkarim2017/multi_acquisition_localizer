@@ -1,0 +1,31 @@
+{
+  "command": "/home/ops/verdi/ops/multi_acquisition_localizer/multi_acquisition_localizer.sh",
+  "imported_worker_files": {
+    "/home/ops/.netrc": ["/home/ops/.netrc"],
+    "/home/ops/.aws": ["/home/ops/.aws", "ro"],
+    "/home/ops/verdi/etc/settings.conf": "/home/ops/verdi/ops/multi_acquisition_localizer/settings.conf"
+  },
+  "recommended-queues" : [
+    "grfn-job_worker-small",
+    "aria-job_worker-small",
+    "mem-job_worker-small",
+    "dwr-job_worker-small",
+    "urgent-response-job_worker-small"
+  ],
+  "soft_time_limit": 86400,
+  "time_limit": 87000, 
+  "params" : [
+    {
+      "name": "project",
+      "destination": "context"
+    },
+    {
+      "name": "spyddder_extract_version",
+      "destination": "context"
+    },
+    {
+      "name":"products",
+      "destination":"context"
+    } 
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "command":"/home/ops/verdi/ops/multi_acquisition_localizer/run_sciflo.sh",
+  "imported_worker_files": {
+    "/home/ops/.netrc": "/home/ops/.netrc",
+    "/home/ops/.aws": "/home/ops/.aws",
+    "/home/ops/verdi/etc/settings.json": "/home/ops/verdi/ops/multi_acquisition_localizer/settings.json"
+  },
+  "soft_time_limit": 14400,
+  "time_limit": 14700,
+  "recommended-queues": [ "system-jobs-queue" ],
+  "params" : [
+    {
+      "name": "workflow",
+      "destination": "positional"
+    },
+    {
+        "name": "project",
+        "destination": "context"
+    },
+    {
+      "name": "spyddder_extract_version",
+      "destination": "context"
+    },
+    {
+        "name": "dataset_type",
+        "destination": "context"
+    },
+    {
+        "name": "dataset",
+        "destination": "context"
+    },
+    {
+        "name": "identifier",
+        "destination": "context"
+    },
+    {
+        "name": "download_url",
+        "destination": "context"
+    },
+    {
+        "name": "archive_filename",
+        "destination": "context"
+    },
+    {
+        "name": "prod_met",
+        "destination": "context"
+    }
+  ]
+}

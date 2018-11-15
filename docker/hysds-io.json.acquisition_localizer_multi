@@ -1,0 +1,29 @@
+{
+  "label" : "Acquisition Localizer (Multi"),
+  "recommended-queues" : [ "grfn-job_worker-large" ],
+  "allowed_accounts": [ "ops" ],
+  "enable_dedup": false,
+  "submission_type":"individual",
+  "params" : [
+    {
+      "name": "project",
+      "from": "submitter",
+      "type": "enum",
+      "default": "grfn",
+      "enumerables": ["aria", "grfn", "mem", "urgent-response", "dwr"]
+    },
+    {
+      "name": "spyddder_extract_version",
+      "from": "submitter",
+      "default": "develop"
+      "type": "jobspec_version",
+      "version_regex": "job-spyddder-extract",
+      "placeholder": "spyddder-man extract job version"
+    },
+    {
+      "name":"products",
+      "type":"text",
+      "from":"dataset_jpath:_id"
+    } 
+  ]
+}

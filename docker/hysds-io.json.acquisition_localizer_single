@@ -1,0 +1,55 @@
+{     
+  "submission_type": "iteration",
+  "label": "Acquisition Localizer - Single",
+  "allowed_accounts": [ "ops" ],
+  "params" : [ 
+    {
+      "name": "workflow",
+      "from": "value",
+      "value": "acquisition_localizer.sf.xml"
+    },
+    { 
+      "name": "project",
+      "from": "submitter",
+      "type": "enum",
+      "default": "grfn",
+      "enumerables": ["aria", "grfn", "mem", "urgent-response", "dwr", "chevron"]
+    },
+    {
+      "name": "spyddder_extract_version",
+      "from": "submitter",
+      "type": "jobspec_version",
+      "version_regex": "job-spyddder-extract",
+      "placeholder": "spyddder-man extract job version"
+    },
+    {
+      "name": "dataset_type",
+      "from": "dataset_jpath:_source.dataset_type",
+      "type": "text"
+    },
+    {
+      "name": "dataset",
+      "from": "dataset_jpath:_source.dataset",
+      "type": "text"
+    },
+    {
+      "name": "identifier",
+      "from": "dataset_jpath:_source.metadata.identifier",
+      "type": "text"
+    },
+    {
+      "name": "download_url",
+      "from": "dataset_jpath:_source.metadata.download_url",
+      "type": "text"
+    },
+    {
+      "name": "archive_filename",
+      "from": "dataset_jpath:_source.metadata.archive_filename",
+      "type": "text"
+    },
+    {
+      "name": "prod_met",
+      "from": "dataset_jpath:_source.metadata"
+    }
+  ]
+}
