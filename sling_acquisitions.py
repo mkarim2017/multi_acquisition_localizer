@@ -300,29 +300,8 @@ def resolve_source(ctx_file):
     with open(ctx_file) as f:
         ctx = json.load(f)
     
-    '''
-    settings_file = os{
-    "query": {
-      "filtered": {
-        "query": {
-          "query_string": {
-            "default_operator": "OR", 
-            "query": "\"acquisition-S1A_IW_SLC__1SDV_20181109T152457_20181109T152523_024513_02B065_B96B\""
-          }
-        }
-      }
-    }
-  }.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.json')
-    with open(settings_file) as f:
-        settings = json.load(f)
-    '''
-
-    sleep_seconds = 30
-    
     spyddder_extract_version = "develop"
 
-
-    
     # build args
     project = ctx["project"]
     if type(project) is list:
@@ -395,17 +374,6 @@ def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, pro
                     logger.info(err_msg)
                     raise RuntimeError(err_msg)
 
-                    '''
-                    download_url = acq_data["metadata"]["download_url"]
-	
-            	    job_id = submit_sling_job(project, spyddder_extract_version, acquisition_localizer_version, acq_data, job_priority)
-            	    acq_info[acq_id]['job_id'] = job_id
-		    logger.info("New Job Id : %s" %acq_info[acq_id]['job_id'])
-            	    job_status, new_job_id  = get_job_status(job_id)
-            	    acq_info[acq_id]['job_id'] = new_job_id
-            	    acq_info[acq_id]['job_status'] = job_status
-		    logger.info("After checking job status, New Job Id : %s and status is %s" %(acq_info[acq_id]['job_id'], acq_info[acq_id]['job_status']))
-		    '''
                 else:
                     acq_info[acq_id]['job_id'] = job_id
                     acq_info[acq_id]['job_status'] = job_status
@@ -626,23 +594,12 @@ def check_ES_status(doc_id):
     
 
 def main():
-    #master_acqs = ["acquisition-S1A_IW_ACQ__1SDV_20180702T135953_20180702T140020_022616_027345_3578"]
-    #slave_acqs = ["acquisition-S1B_IW_ACQ__1SDV_20180720T015751_20180720T015819_011888_015E1C_3C64"]
-    master_acqs = ["acquisition-S1A_IW_ACQ__1SDV_20180807T135955_20180807T140022_023141_02837E_DA79"]
-    slave_acqs =["acquisition-S1A_IW_ACQ__1SDV_20180714T140019_20180714T140046_022791_027880_AFD3", "acquisition-S1A_IW_ACQ__1SDV_20180714T135954_20180714T140021_022791_027880_D224", "acquisition-S1A_IW_ACQ__1SDV_20180714T135929_20180714T135956_022791_027880_9FCA"]
 
+    context_file = os.path.abspath("_context.json")
+    if not os.path.exists(context_file):
+        raise(RuntimeError("Context file doesn't exist."))
+    resolve_source(context_file)
 
-    #acq_data= util.get_partial_grq_data("acquisition-S1A_IW_ACQ__1SDV_20180702T135953_20180702T140020_022616_027345_3578")['fields']['partial'][0]
-    acq_data= util.get_partial_grq_data("acquisition-S1A_IW_SLC__1SSV_20160630T135949_20160630T140017_011941_01266D_C62F")['fields']['partial'][0]
-    print(acq_data) 
-    
-    #resolve_source(master_acqs, slave_acqs)
-    print(acq_data["dataset_type"])
-    print(acq_data["dataset"])    
-    print(acq_data["metadata"]["identifier"]) 
-    print(acq_data["metadata"]["download_url"])
-    print(acq_data["metadata"]["archive_filename"])
-    #print(acq_data["metadata"][""])
 if __name__ == "__main__":
     main()
 
