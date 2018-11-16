@@ -14,8 +14,12 @@
       "destination": "positional"
     },
     {
-        "name": "project",
-        "destination": "context"
+      "name": "asf_ngap_download_queue",
+      "destination": "context"
+    },
+    {
+      "name":"esa_download_queue",
+      "destination":"context"
     },
     {
       "name": "spyddder_extract_version",

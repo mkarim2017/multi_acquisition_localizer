@@ -5,19 +5,16 @@
     "/home/ops/.aws": ["/home/ops/.aws", "ro"],
     "/home/ops/verdi/etc/settings.conf": "/home/ops/verdi/ops/multi_acquisition_localizer/settings.conf"
   },
-  "recommended-queues" : [
-    "grfn-job_worker-small",
-    "aria-job_worker-small",
-    "mem-job_worker-small",
-    "dwr-job_worker-small",
-    "urgent-response-job_worker-small"
-  ],
   "soft_time_limit": 86400,
   "time_limit": 87000, 
   "params" : [
     {
-      "name": "project",
+      "name": "asf_ngap_download_queue",
       "destination": "context"
+    },
+    {
+      "name":"esa_download_queue",
+      "destination":"context"
     },
     {
       "name": "spyddder_extract_version",

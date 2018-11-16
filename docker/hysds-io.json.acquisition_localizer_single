@@ -8,12 +8,19 @@
       "from": "value",
       "value": "acquisition_localizer.sf.xml"
     },
-    { 
-      "name": "project",
+    {
+      "name": "asf_ngap_download_queue",
       "from": "submitter",
       "type": "enum",
-      "default": "grfn",
-      "enumerables": ["aria", "grfn", "mem", "urgent-response", "dwr", "chevron"]
+      "default": "factotum-job_worker-asf_throttled",
+      "enumerables": ["factotum-job_worker-asf_throttled"]
+    },
+    {
+      "name": "esa_download_queue",
+      "from": "submitter",
+      "type": "enum",
+      "default": "factotum-job_worker-scihub_throttled",
+      "enumerables": ["factotum-job_worker-apihub_throttled", "factotum-job_worker-scihub_throttled"]
     },
     {
       "name": "spyddder_extract_version",

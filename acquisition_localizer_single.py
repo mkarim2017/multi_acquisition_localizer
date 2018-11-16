@@ -231,7 +231,7 @@ def query_aoi_acquisitions(starttime, endtime, platform):
     return acq_info
     
 
-def resolve_s1_slc(identifier, download_url, project):
+def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     """Resolve S1 SLC using ASF datapool (ASF or NGAP). Fallback to ESA."""
 
     # determine best url and corresponding queue
@@ -239,10 +239,10 @@ def resolve_s1_slc(identifier, download_url, project):
     r = requests.head(vertex_url, allow_redirects=True)
     if r.status_code == 403:
         url = r.url
-        queue = "{}-job_worker-small".format(project)
+        queue = asf_queue
     elif r.status_code == 404:
         url = download_url
-        queue = "factotum-job_worker-scihub_throttled"
+        queue = esa_queue
     else:
         raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
     return url, queue
@@ -269,7 +269,7 @@ def resolve_source(ctx):
     if ctx['dataset'] == "acquisition-S1-IW_SLC":
         if dataset_exists(ctx['identifier'], settings['ACQ_TO_DSET_MAP'][ctx['dataset']]):
             raise DatasetExists("Dataset {} already exists.".format(ctx['identifier']))
-        url, queue = resolve_s1_slc(ctx['identifier'], ctx['download_url'], ctx['project'])
+        url, queue = resolve_s1_slc(ctx['identifier'], ctx['download_url'], ctx['asf_ngap_download_queue'], ctx['esa_download_queue'])
     else:
         raise NotImplementedError("Unknown acquisition dataset: {}".format(ctx['dataset']))
 

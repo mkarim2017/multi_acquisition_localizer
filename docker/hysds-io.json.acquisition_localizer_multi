@@ -1,16 +1,23 @@
 {
   "label" : "Acquisition Localizer - Multi",
-  "recommended-queues" : [ "grfn-job_worker-large" ],
+  "recommended-queues" : [ "system-job_worker-small" ],
   "allowed_accounts": [ "ops" ],
   "enable_dedup": false,
   "submission_type":"individual",
   "params" : [
     {
-      "name": "project",
+      "name": "asf_ngap_download_queue",
       "from": "submitter",
       "type": "enum",
-      "default": "grfn",
-      "enumerables": ["aria", "grfn", "mem", "urgent-response", "dwr"]
+      "default": "factotum-job_worker-asf_throttled",
+      "enumerables": ["factotum-job_worker-asf_throttled"]
+    },
+    {
+      "name": "esa_download_queue",
+      "from": "submitter",
+      "type": "enum",
+      "default": "factotum-job_worker-scihub_throttled",
+      "enumerables": ["factotum-job_worker-apihub_throttled", "factotum-job_worker-scihub_throttled"]
     },
     {
       "name": "spyddder_extract_version",

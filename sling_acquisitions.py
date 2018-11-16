@@ -303,10 +303,13 @@ def resolve_source(ctx_file):
     spyddder_extract_version = "develop"
 
     # build args
+    '''
     project = ctx["project"]
     if type(project) is list:
         project = project[0]
+    '''
 
+  
     acq_info = {}
 
     acq_list = ctx["products"]
@@ -316,6 +319,8 @@ def resolve_source(ctx_file):
     if "spyddder_extract_version" in ctx:
         spyddder_extract_version = ctx["spyddder_extract_version"]
 
+    asf_ngap_download_queue = ctx['asf_ngap_download_queue']
+    esa_download_queue = ctx['esa_download_queue']
 
     job_priority = ctx["job_priority"]
     job_type, job_version = ctx['job_specification']['id'].split(':') 
@@ -330,11 +335,11 @@ def resolve_source(ctx_file):
     index_suffix = "S1-IW_ACQ"
 
 
-    sling(acq_info, spyddder_extract_version, acquisition_localizer_version, project, job_priority, job_type, job_version)
+    sling(acq_info, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
 
 
 
-def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, project, job_priority, job_type, job_version):
+def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version):
     '''
 	This function checks if any ACQ that has not been ingested yet and sling them.
     '''
@@ -346,7 +351,7 @@ def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, pro
 
         if not acq_info[acq_id]['localized']:
             acq_data = acq_info[acq_id]['acq_data']
-            job_id = submit_sling_job(project, spyddder_extract_version, acquisition_localizer_version, acq_data, job_priority)
+            job_id = submit_sling_job(spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, acq_data, job_priority)
  
             acq_info[acq_id]['job_id'] = job_id
             job_status, new_job_id  = get_job_status(job_id)
@@ -470,7 +475,7 @@ def check_all_job_completed(acq_info):
 
 
 
-def submit_sling_job(project, spyddder_extract_version, acquisition_localizer_version, acq_data, priority):
+def submit_sling_job(spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, acq_data, priority):
 
     """Map function for spyddder-man extract job."""
 
@@ -482,17 +487,16 @@ def submit_sling_job(project, spyddder_extract_version, acquisition_localizer_ve
     job_type = "job-acquisition_localizer_single:{}".format(acquisition_localizer_version)
     logger.info("\nSubmitting job of type : %s" %job_type)
      # set job type and disk space reqs
-    disk_usage = "300GB"
+    disk_usage = "10GB"
     #logger.info(acq_data)
     #acq_id = acq_data['acq_id']
 
     # set job queue based on project
-    job_queue = "%s-job_worker-large" % project
-    #job_queue = "factotum-job_worker-small" 
+    job_queue = "system-job_worker-small" 
     rule = {
         "rule_name": "acquisition_localizer_multi-sling",
         "queue": job_queue,
-        "priority": '5',
+        "priority": priority,
         "kwargs":'{}'
     }
 
@@ -506,9 +510,14 @@ def submit_sling_job(project, spyddder_extract_version, acquisition_localizer_ve
             "value": "acquisition_localizer.sf.xml"
         },
         {
-            "name": "project",
+            "name": "asf_ngap_download_queue",
             "from": "value",
-            "value": project
+            "value": asf_ngap_download_queue
+        },
+        {
+            "name": "esa_download_queue",
+            "from": "value",
+            "value": esa_download_queue
         },
         {
             "name": "spyddder_extract_version",
