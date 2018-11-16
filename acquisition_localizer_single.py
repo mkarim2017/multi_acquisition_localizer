@@ -285,53 +285,6 @@ def resolve_source_from_ctx_file(ctx_file):
         return resolve_source(json.load(f))
 
 
-def resolve_aoi_acqs(ctx_file):
-    """Resolve best URL from acquisitions from AOIs."""
-
-    # read in context
-    with open(ctx_file) as f:
-        ctx = json.load(f)
-
-    # get acq_info
-    acq_info = query_aoi_acquisitions(ctx['starttime'], ctx['endtime'], ctx['platform'])
-
-    # build args
-    spyddder_extract_versions = []
-    queues = []
-    urls = []
-    archive_filenames = []
-    identifiers = []
-    prod_dates = []
-    priorities = []
-    aois = []
-    for id in sorted(acq_info):
-        acq = acq_info[id]
-        acq['spyddder_extract_version'] = ctx['spyddder_extract_version']
-        acq['project'] = ctx['project']
-        acq['identifier'] = acq['metadata']['identifier']
-        acq['download_url'] = acq['metadata']['download_url']
-        acq['archive_filename'] = acq['metadata']['archive_filename']
-        acq['aoi'] = acq['aoi']
-        acq['job_priority'] = acq['priority']
-        try:
-            ( spyddder_extract_version, queue, url, archive_filename, 
-              identifier, prod_date, priority, aoi ) = resolve_source(acq)
-        except DatasetExists, e:
-            logger.warning(e)
-            logger.warning("Skipping {}".format(acq['identifier']))
-            continue
-        spyddder_extract_versions.append(spyddder_extract_version)
-        queues.append(queue)
-        urls.append(url)
-        archive_filenames.append(archive_filename)
-        identifiers.append(identifier)
-        prod_dates.append(prod_date)
-        priorities.append(priority)
-        aois.append(aoi)
-    return ( spyddder_extract_versions, queues, urls, archive_filenames,
-             identifiers, prod_dates, priorities, aois )
-
-
 def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
                 prod_date, priority, aoi, wuid=None, job_num=None):
     """Map function for spyddder-man extract job."""

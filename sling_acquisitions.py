@@ -301,15 +301,6 @@ def resolve_source(ctx_file):
         ctx = json.load(f)
     
     spyddder_extract_version = "develop"
-
-    # build args
-    '''
-    project = ctx["project"]
-    if type(project) is list:
-        project = project[0]
-    '''
-
-  
     acq_info = {}
 
     acq_list = ctx["products"]
@@ -491,7 +482,7 @@ def submit_sling_job(spyddder_extract_version, acquisition_localizer_version, es
     #logger.info(acq_data)
     #acq_id = acq_data['acq_id']
 
-    # set job queue based on project
+    # set job queue
     job_queue = "system-job_worker-small" 
     rule = {
         "rule_name": "acquisition_localizer_multi-sling",
