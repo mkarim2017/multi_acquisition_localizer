@@ -415,11 +415,12 @@ def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, esa
     #At this point we have all the slcs localized
     localized_data = get_output_data(acq_info)
 
-    logger.info("\n\nLocalized Acquisitions")
-    for acq in localized_data.keys():
-        for acq_data in acq:
-            logger.info("%s : %s" %(acq_data, acq[acq_data]))
-        logger.info("\n")
+    logger.info("\n\nLocalized Acquisitions:")
+    if localized_data:
+        for acq in localized_data.keys():
+            for acq_data in acq:
+                logger.info("%s : %s" %(acq_data, acq[acq_data]))
+            logger.info("\n")
 
         
 
