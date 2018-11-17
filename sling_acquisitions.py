@@ -484,7 +484,7 @@ def submit_sling_job(spyddder_extract_version, acquisition_localizer_version, es
     #acq_id = acq_data['acq_id']
 
     # set job queue
-    job_queue = "system-job_worker-small" 
+    job_queue = "system-jobs-queue" 
     rule = {
         "rule_name": "acquisition_localizer_multi-sling",
         "queue": job_queue,

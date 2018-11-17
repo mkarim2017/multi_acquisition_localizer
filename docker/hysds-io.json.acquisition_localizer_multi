@@ -1,6 +1,6 @@
 {
   "label" : "Acquisition Localizer - Multi",
-  "recommended-queues" : [ "system-job_worker-small" ],
+  "recommended-queues" : [ "system-jobs-queue" ],
   "allowed_accounts": [ "ops" ],
   "enable_dedup": false,
   "submission_type":"individual",
