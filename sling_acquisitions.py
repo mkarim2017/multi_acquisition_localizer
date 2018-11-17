@@ -303,7 +303,7 @@ def resolve_source(ctx_file):
     spyddder_extract_version = "develop"
     acq_info = {}
 
-    acq_list = ctx["products"]
+    acq_list = ctx['products'] if isinstance(ctx['products'], list) else [ctx['products']]
     logger.info("Acq List Type : %s" %type(acq_list))
     acq_info = get_acq_data_from_list(acq_list)
  
