@@ -237,7 +237,7 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
     # determine best url and corresponding queue
     vertex_url = "https://datapool.asf.alaska.edu/SLC/SA/{}.zip".format(identifier)
     r = requests.head(vertex_url, allow_redirects=True)
-    if r.status_code == 403:
+    if r.status_code in (200, 403):
         url = r.url
         queue = asf_queue
     elif r.status_code == 404:
