@@ -253,29 +253,42 @@ class DatasetExists(Exception):
     pass
 
 
-def resolve_source(ctx):
+def resolve_source_from_ctx(ctx):
     """Resolve best URL from acquisition."""
 
+    dataset_type = ctx['dataset_type']
+    identifier = ctx['identifier']
+    dataset = ctx['dataset']
+    download_url = ctx['download_url']
+    asf_ngap_download_queue = ctx['asf_ngap_download_queue']
+    esa_download_queue = ctx['esa_download_queue']
+    job_priority = ctx.get('job_priority', 0)
+    aoi = ctx.get('aoi', 'no_aoi')
+    spyddder_extract_version = ctx['spyddder_extract_version']
+    archive_filename = ctx['archive_filename']
+
+    return resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_download_queue, esa_download_queue, spyddder_extract_version,archive_filename, job_priority, aoi)
+
+
+def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_download_queue, esa_download_queue, spyddder_extract_version, archive_filename, job_priority, aoi):
     # get settings
     settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.json')
     with open(settings_file) as f:
         settings = json.load(f)
 
     # ensure acquisition
-    if ctx['dataset_type'] != "acquisition":
-        raise RuntimeError("Invalid dataset type: {}".format(ctx['dataset_type']))
+    if dataset_type != "acquisition":
+        raise RuntimeError("Invalid dataset type: {}".format(dataset_type))
 
     # route resolver and return url and queue
-    if ctx['dataset'] == "acquisition-S1-IW_SLC":
-        if dataset_exists(ctx['identifier'], settings['ACQ_TO_DSET_MAP'][ctx['dataset']]):
-            raise DatasetExists("Dataset {} already exists.".format(ctx['identifier']))
-        url, queue = resolve_s1_slc(ctx['identifier'], ctx['download_url'], ctx['asf_ngap_download_queue'], ctx['esa_download_queue'])
+    if dataset == "acquisition-S1-IW_SLC":
+        if dataset_exists(identifier, settings['ACQ_TO_DSET_MAP'][dataset]):
+            raise DatasetExists("Dataset {} already exists.".format(identifier))
+        url, queue = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
     else:
-        raise NotImplementedError("Unknown acquisition dataset: {}".format(ctx['dataset']))
+        raise NotImplementedError("Unknown acquisition dataset: {}".format(dataset))
 
-    return ( ctx['spyddder_extract_version'], queue, url, ctx['archive_filename'], 
-             ctx['identifier'], time.strftime('%Y-%m-%d' ), ctx.get('job_priority', 0),
-             ctx.get('aoi', 'no_aoi') )
+    return extract_job(spyddder_extract_versio, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
 
 
 def resolve_source_from_ctx_file(ctx_file):
