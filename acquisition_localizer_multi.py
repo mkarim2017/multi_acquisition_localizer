@@ -306,7 +306,6 @@ def resolve_source(ctx_file):
 
     acq_list = ctx['products'] if isinstance(ctx['products'], list) else [ctx['products']]
     logger.info("Acq List Type : %s" %type(acq_list))
-    acq_info = get_acq_data_from_list(acq_list)
  
     if "spyddder_extract_version" in ctx:
         spyddder_extract_version = ctx["spyddder_extract_version"]
@@ -327,14 +326,17 @@ def resolve_source(ctx_file):
     index_suffix = "S1-IW_ACQ"
 
 
-    sling(acq_info, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
+    sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
 
 
 
-def sling(acq_info, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version):
+def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version):
     '''
 	This function checks if any ACQ that has not been ingested yet and sling them.
     '''
+
+    acq_info = get_acq_data_from_list(acq_list)
+
     #logger.info("acq_info type: %s : %s" %(type(acq_info), len(acq_info) ))
     #logger.info(acq_info)
     logger.info("%s : %s" %(type(spyddder_extract_version), spyddder_extract_version))
