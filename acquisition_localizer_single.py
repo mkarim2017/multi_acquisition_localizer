@@ -3,7 +3,7 @@ import os, sys, time, json, requests, logging
 
 from hysds_commons.job_utils import resolve_hysds_job
 from hysds.celery import app
-from hysds_commons.job_utils import submit_mozart_job
+from hysds_commons.job_utils import submit_hysds_job
 
 # set logger
 log_format = "[%(asctime)s: %(levelname)s/%(name)s/%(funcName)s] %(message)s"
