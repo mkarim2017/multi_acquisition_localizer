@@ -290,10 +290,8 @@ def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_dow
 
     # route resolver and return url and queue
     if dataset == "acquisition-S1-IW_SLC":
-        '''
         if dataset_exists(identifier, settings['ACQ_TO_DSET_MAP'][dataset]):
             raise DatasetExists("Dataset {} already exists.".format(identifier))
-        '''
         url, queue = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
     else:
         raise NotImplementedError("Unknown acquisition dataset: {}".format(dataset))
