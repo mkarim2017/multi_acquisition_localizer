@@ -342,7 +342,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     logger.info("%s : %s" %(type(spyddder_extract_version), spyddder_extract_version))
     # acq_info has now all the ACQ's status. Now submit the Sling job for the one's whose status = 0 and update the slc_info with job id
     for acq_id in acq_info.keys():
-        #acq_info[acq_id]['localized'] = False
+        acq_info[acq_id]['localized'] = False
         if not acq_info[acq_id]['localized']:
             acq_data = acq_info[acq_id]['acq_data']
             job_id = submit_sling_job(spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, acq_data, job_priority)
