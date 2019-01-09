@@ -326,7 +326,7 @@ def resolve_source(ctx_file):
     index_suffix = "S1-IW_ACQ"
 
 
-    sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
+    return sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, job_priority, job_type, job_version)
 
 
 
@@ -342,7 +342,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     logger.info("%s : %s" %(type(spyddder_extract_version), spyddder_extract_version))
     # acq_info has now all the ACQ's status. Now submit the Sling job for the one's whose status = 0 and update the slc_info with job id
     for acq_id in acq_info.keys():
-
+        acq_info[acq_id]['localized'] = False
         if not acq_info[acq_id]['localized']:
             acq_data = acq_info[acq_id]['acq_data']
             job_id = submit_sling_job(spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, acq_data, job_priority)
@@ -397,8 +397,10 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     all_exists = False
     index_suffix = "S1-IW_ACQ"
     slc_check_start_time = datetime.utcnow()
+    slcs_not_exist = []
     while not all_exists:
         all_exists = True
+        slcs_not_exist = []
         for acq_id in acq_info.keys():
             if not acq_info[acq_id]['localized']:
                 acq_data = acq_info[acq_id]['acq_data']
@@ -407,6 +409,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
                 if not acq_info[acq_id]['localized']:
                     logger.info("%s NOT localized!!" %acq_data['metadata']['identifier'])
                     all_exists = False
+                    slcs_not_exist.append(acq_id)
                     break
         if not all_exists:
             now = datetime.utcnow()
@@ -416,7 +419,15 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
             time.sleep(60)
     
     #At this point we have all the slcs localized
-    localized_data = get_output_data(acq_info)
+    if all_exists:
+        localized_data = get_output_data(acq_info)
+        return True, localized_data
+    else:
+        return False, slcs_not_exist
+        
+    
+    
+
     '''
     logger.info("\n\nLocalized Acquisitions:")
     if localized_data:
@@ -472,7 +483,7 @@ def submit_sling_job(spyddder_extract_version, acquisition_localizer_version, es
     identifier = acq_data["metadata"]["identifier"]
     dataset_type = acq_data["dataset_type"]
     dataset = acq_data["dataset"]
-    download_url = acq_data["metadata"]["download_url"
+    download_url = acq_data["metadata"]["download_url"]
     archive_filename = acq_data["metadata"]["archive_filename"]
     aoi = "no_aoi"
 
@@ -650,7 +661,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
 
