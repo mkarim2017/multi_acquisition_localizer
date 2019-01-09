@@ -275,13 +275,14 @@ def resolve_source_from_ctx(ctx):
 def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_download_queue, esa_download_queue, spyddder_extract_version, archive_filename, job_priority, aoi):
    
     # get settings
+    '''
     settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.json')
     with open(settings_file) as f:
         settings = json.load(f)
     '''
     settings = {}
     settings['ACQ_TO_DSET_MAP'] = {"acquisition-S1-IW_SLC": "S1-IW_SLC"}
-    '''
+   
 
     # ensure acquisition
     if dataset_type != "acquisition":
