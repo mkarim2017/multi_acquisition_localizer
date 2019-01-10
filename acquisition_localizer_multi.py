@@ -35,7 +35,7 @@ GRQ_ES_ENDPOINT = "GRQ"
 sleep_seconds = 120
 slc_check_max_sec = 300
 sling_completion_max_sec = 10800
-
+MAX_TRY = 2
 
 class ACQ:
     def __init__(self, acq_id, acq_data, localized=False, job_id=None, job_status = None):
@@ -377,9 +377,10 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
                     acq_info[acq_id]['localized'] = check_slc_status(acq_data['metadata']['identifier'])
 
                 elif job_status == "job-failed":
-                    err_msg = "Error : Sling job %s FAILED. So existing out of the sciflo!!....." %job_id
+                    acq_info[acq_id]['job_status'] = job_status
+                    err_msg = "Error : Sling job %s FAILED" %job_id
                     logger.info(err_msg)
-                    raise RuntimeError(err_msg)
+                    #raise RuntimeError(err_msg)
 
                 else:
                     acq_info[acq_id]['job_id'] = job_id
@@ -480,11 +481,21 @@ def check_all_job_completed(acq_info):
     for acq_id in acq_info.keys():
         if not acq_info[acq_id]['localized']:  
             job_status = acq_info[acq_id]['job_status']
-            if not job_status == "job-completed":
+            if not job_status == "job-completed" or not job_status == "job-failed":
                 logger.info("check_all_job_completed : %s NOT completed!!" %acq_info[acq_id]['job_id'])	
                 all_done = False
                 break
     return all_done
+
+def check_failed_jobs(acq_info):
+    failed_jobs = []
+    for acq_id in acq_info.keys():
+        if not acq_info[acq_id]['localized']:
+            job_status = acq_info[acq_id]['job_status']
+            if job_status == "job-failed":
+                logger.info("Failed SLC : %s" %acq_id)
+                failed_jobs.append(acq_id)
+    return failed_jobs
 
 
 
