@@ -3,7 +3,7 @@ import os, sys, time, json, requests, logging
 
 from hysds_commons.job_utils import resolve_hysds_job
 from hysds.celery import app
-
+from hysds_commons.job_utils import submit_hysds_job
 
 # set logger
 log_format = "[%(asctime)s: %(levelname)s/%(name)s/%(funcName)s] %(message)s"
@@ -244,7 +244,9 @@ def resolve_s1_slc(identifier, download_url, asf_queue, esa_queue):
         url = download_url
         queue = esa_queue
     else:
-        raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
+        url = download_url
+        queue = esa_queue
+        #raise RuntimeError("Got status code {} from {}: {}".format(r.status_code, vertex_url, r.url))
     return url, queue
 
 
@@ -253,44 +255,66 @@ class DatasetExists(Exception):
     pass
 
 
-def resolve_source(ctx):
+def resolve_source_from_ctx(ctx):
     """Resolve best URL from acquisition."""
 
+    dataset_type = ctx['dataset_type']
+    identifier = ctx['identifier']
+    dataset = ctx['dataset']
+    download_url = ctx['download_url']
+    asf_ngap_download_queue = ctx['asf_ngap_download_queue']
+    esa_download_queue = ctx['esa_download_queue']
+    job_priority = ctx.get('job_priority', 0)
+    aoi = ctx.get('aoi', 'no_aoi')
+    spyddder_extract_version = ctx['spyddder_extract_version']
+    archive_filename = ctx['archive_filename']
+
+    return resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_download_queue, esa_download_queue, spyddder_extract_version,archive_filename, job_priority, aoi)
+
+
+def resolve_source(dataset_type, identifier, dataset, download_url, asf_ngap_download_queue, esa_download_queue, spyddder_extract_version, archive_filename, job_priority, aoi):
+   
     # get settings
+    '''
     settings_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'settings.json')
     with open(settings_file) as f:
         settings = json.load(f)
+    '''
+    settings = {}
+    settings['ACQ_TO_DSET_MAP'] = {"acquisition-S1-IW_SLC": "S1-IW_SLC"}
+   
 
     # ensure acquisition
-    if ctx['dataset_type'] != "acquisition":
-        raise RuntimeError("Invalid dataset type: {}".format(ctx['dataset_type']))
+    if dataset_type != "acquisition":
+        raise RuntimeError("Invalid dataset type: {}".format(dataset_type))
 
     # route resolver and return url and queue
-    if ctx['dataset'] == "acquisition-S1-IW_SLC":
-        if dataset_exists(ctx['identifier'], settings['ACQ_TO_DSET_MAP'][ctx['dataset']]):
-            raise DatasetExists("Dataset {} already exists.".format(ctx['identifier']))
-        url, queue = resolve_s1_slc(ctx['identifier'], ctx['download_url'], ctx['asf_ngap_download_queue'], ctx['esa_download_queue'])
+    if dataset == "acquisition-S1-IW_SLC":
+        '''
+        if dataset_exists(identifier, settings['ACQ_TO_DSET_MAP'][dataset]):
+            raise DatasetExists("Dataset {} already exists.".format(identifier))
+        '''
+        url, queue = resolve_s1_slc(identifier, download_url, asf_ngap_download_queue, esa_download_queue)
     else:
-        raise NotImplementedError("Unknown acquisition dataset: {}".format(ctx['dataset']))
+        raise NotImplementedError("Unknown acquisition dataset: {}".format(dataset))
 
-    return ( ctx['spyddder_extract_version'], queue, url, ctx['archive_filename'], 
-             ctx['identifier'], time.strftime('%Y-%m-%d' ), ctx.get('job_priority', 0),
-             ctx.get('aoi', 'no_aoi') )
-
+    return extract_job(spyddder_extract_version, queue, url, archive_filename, identifier, time.strftime('%Y-%m-%d' ), job_priority, aoi)
 
 def resolve_source_from_ctx_file(ctx_file):
     """Resolve best URL from acquisition."""
 
     with open(ctx_file) as f:
-        return resolve_source(json.load(f))
+        return resolve_source_from_ctx(json.load(f))
 
 
 def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
                 prod_date, priority, aoi, wuid=None, job_num=None):
     """Map function for spyddder-man extract job."""
 
+    '''
     if wuid is None or job_num is None:
         raise RuntimeError("Need to specify workunit id and job num.")
+    '''
 
     # set job type and disk space reqs
     job_type = "job-spyddder-extract:{}".format(spyddder_extract_version)
@@ -311,8 +335,104 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
         job['payload']['localize_urls'][0]['local_path'] = file
 
     # add workflow info
+    #if wuid is not None and job_num is not None:
     job['payload']['_sciflo_wuid'] = wuid
     job['payload']['_sciflo_job_num'] = job_num
     print("job: {}".format(json.dumps(job, indent=2)))
 
-    return job
+    return submit_hysds_job(job)
+
+def submit_sling(ctx_file):
+    """Submit sling for S1 SLC from acquisition."""
+
+    # get context
+    with open(ctx_file) as f:
+        ctx = json.load(f)
+    logger.info("ctx: {}".format(json.dumps(ctx, indent=2)))
+
+    # filter non acquisitions
+    if ctx.get('source_dataset', None) != "acquisition-S1-IW_SLC":
+        raise RuntimeError("Skipping invalid acquisition dataset.")
+
+    # build payload items for job submission
+    qtype = "scihub"
+    archive_fname = ctx['archive_filename']
+    title, ext = archive_fname.split('.')
+    start_dt = get_date(ctx['starttime'])
+    yr = start_dt.year
+    mo = start_dt.month
+    dy = start_dt.day
+    logger.info("starttime: {}".format(start_dt))
+    md5 = hashlib.md5("{}\n".format(archive_fname)).hexdigest()
+    repo_url = "{}/{}/{}/{}/{}/{}".format(ctx['repo_url'], md5[0:8], md5[8:16],
+                                          md5[16:24], md5[24:32], archive_fname)
+    logger.info("repo_url: {}".format(repo_url))
+    prod_met = {}
+    prod_met['source'] = qtype
+    prod_met['dataset_type'] = title[0:3]
+    prod_met['spatial_extent'] = {
+        'type': 'polygon',
+        'aoi': None,
+        'coordinates': ctx['prod_met']['location']['coordinates'],
+    }
+    prod_met['tag'] = []
+
+    #required params for job submission
+    job_type = "job:spyddder-sling_%s" % qtype
+    oauth_url = None
+    queue = "factotum-job_worker-%s_throttled" % qtype # job submission queue
+
+    #set sling job spec release/branch
+    #job_spec = "job-sling:release-20170619"
+    job_spec = "job-sling:{}".format(ctx['sling_release'])
+    rtime = datetime.utcnow()
+    job_name = "%s-%s-%s-%s" % (job_spec, queue, archive_fname, rtime.strftime("%d_%b_%Y_%H:%M:%S"))
+    job_name = job_name.lstrip('job-')
+
+    #Setup input arguments here
+    rule = {
+        "rule_name": job_spec,
+        "queue": queue,
+        "priority": ctx.get('job_priority', 0),
+        "kwargs":'{}'
+    }
+    params = [
+        { "name": "download_url",
+          "from": "value",
+          "value": ctx['download_url'],
+        },
+        { "name": "repo_url",
+          "from": "value",
+          "value": repo_url,
+        },
+        { "name": "prod_name",
+          "from": "value",
+          "value": title,
+        },
+        { "name": "file_type",
+          "from": "value",
+          "value": ext,
+        },
+        { "name": "prod_date",
+          "from": "value",
+          "value": "{}".format("%04d-%02d-%02d" % (yr, mo, dy)),
+        },
+        { "name": "prod_met",
+          "from": "value",
+          "value": prod_met,
+        },
+        { "name": "options",
+          "from": "value",
+          "value": "--force_extract"
+        }
+    ]
+
+    logger.info("rule: {}".format(json.dumps(rule, indent=2)))
+    logger.info("params: {}".format(json.dumps(params, indent=2)))
+
+    submit_mozart_job({}, rule,
+        hysdsio={"id": "internal-temporary-wiring",
+                 "params": params,
+                 "job-specification": job_spec},
+        job_name=job_name)
+
