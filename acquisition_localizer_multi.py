@@ -356,7 +356,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
 
 
     logger.info("No of sling job : %s" %no_of_localize_job)
-    sling_completion_max_sec_count = 1000 * no_of_localize_job
+    sling_completion_max_sec_count = 2000 * no_of_localize_job
 
     if sling_completion_max_sec_count > sling_completion_max_sec:
         sling_completion_max_sec = sling_completion_max_sec_count
