@@ -11,15 +11,15 @@ export PATH=$BASE_PATH:$PATH
 source $HOME/verdi/bin/activate
 
 echo "##########################################" 1>&2
-echo -n "Running multi_acquisition_localizer.py on $1: " 1>&2
+echo -n "Running single_acquisition_localizer.py on $1: " 1>&2
 date 1>&2
-$BASE_PATH/multi_acquisition_localizer.py $BASE_PATH/$1 > multi_acquisition_localizer.log 2>&1
+$BASE_PATH/single_acquisition_localizer.py $BASE_PATH/$1 > single_acquisition_localizer.log 2>&1
 STATUS=$?
-echo -n "Finished running $1 multi_acquisition_localizer.py: " 1>&2
+echo -n "Finished running $1 single_acquisition_localizer.py: " 1>&2
 date 1>&2
 if [ $STATUS -ne 0 ]; then
-  echo "Failed to run $1 multi_acquisition_localizer.py." 1>&2
-  cat multi_acquisition_localizer.log 1>&2
+  echo "Failed to run $1 single_acquisition_localizer.py." 1>&2
+  cat single_acquisition_localizer.log 1>&2
   echo "{}"
   exit $STATUS
 fi
