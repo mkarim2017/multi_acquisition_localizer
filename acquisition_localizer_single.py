@@ -304,7 +304,7 @@ def resolve_source_from_ctx_file(ctx_file):
     """Resolve best URL from acquisition."""
 
     with open(ctx_file) as f:
-        return resolve_source(json.load(f))
+        return resolve_source_from_ctx(json.load(f))
 
 
 def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
