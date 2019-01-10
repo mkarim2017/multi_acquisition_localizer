@@ -341,17 +341,25 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     #logger.info(acq_info)
     logger.info("%s : %s" %(type(spyddder_extract_version), spyddder_extract_version))
     # acq_info has now all the ACQ's status. Now submit the Sling job for the one's whose status = 0 and update the slc_info with job id
+    no_of_localize_job = 0
     for acq_id in acq_info.keys():
         acq_info[acq_id]['localized'] = False
         if not acq_info[acq_id]['localized']:
             acq_data = acq_info[acq_id]['acq_data']
             job_id = submit_sling_job(spyddder_extract_version, acquisition_localizer_version, esa_download_queue, asf_ngap_download_queue, acq_data, job_priority)
- 
+            no_of_localize_job = no_of_localize_job + 1
             acq_info[acq_id]['job_id'] = job_id
             job_status, new_job_id  = get_job_status(job_id)
             acq_info[acq_id]['job_id'] = new_job_id
             acq_info[acq_id]['job_status'] = job_status
 
+
+    logger.info("No of sling job : %s" %no_of_localize_job)
+    sling_completion_max_sec_count = 1000 * no_of_localize_job
+
+    if sling_completion_max_sec_count > sling_completion_max_sec:
+        sling_completion_max_sec = sling_completion_max_sec_count
+    logger.info("sling_completion_max_sec : %s " %sling_completion_max_sec)
 
     # Now loop in until all the jobs are completed 
     all_done = False
@@ -383,6 +391,8 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
         if not all_done:
             now = datetime.utcnow()
             delta = (now - sling_check_start_time).total_seconds()
+            logger.info("present job run time : %s secs. Timeout time : %s secs" %(delta, sling_completion_max_sec))
+
             if delta >= sling_completion_max_sec:
                 raise RuntimeError("Error : Sling jobs NOT completed after %.2f hours!!" %(delta/3600))
             logger.info("All job not completed. So sleeping for %s seconds" %sleep_seconds)
