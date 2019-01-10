@@ -334,6 +334,7 @@ def sling(acq_list, spyddder_extract_version, acquisition_localizer_version, esa
     '''
 	This function checks if any ACQ that has not been ingested yet and sling them.
     '''
+    global sling_completion_max_sec
 
     acq_info = get_acq_data_from_list(acq_list)
 
