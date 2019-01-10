@@ -335,9 +335,9 @@ def extract_job(spyddder_extract_version, queue, localize_url, file, prod_name,
         job['payload']['localize_urls'][0]['local_path'] = file
 
     # add workflow info
-    if wuid is not None and job_num is not None:
-        job['payload']['_sciflo_wuid'] = wuid
-        job['payload']['_sciflo_job_num'] = job_num
+    #if wuid is not None and job_num is not None:
+    job['payload']['_sciflo_wuid'] = wuid
+    job['payload']['_sciflo_job_num'] = job_num
     print("job: {}".format(json.dumps(job, indent=2)))
 
     return submit_hysds_job(job)
